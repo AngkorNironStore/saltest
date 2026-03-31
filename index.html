@@ -1,0 +1,396 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voice Bot Box</title>
+  <style>
+    :root {
+      --bg: linear-gradient(160deg, #f6efe5 0%, #e8f2ee 100%);
+      --panel: rgba(255, 255, 255, 0.88);
+      --line: #d5dfd8;
+      --text: #17312b;
+      --muted: #5d746d;
+      --accent: #1f8f6b;
+      --accent-strong: #12634a;
+      --bubble-user: #dff6ec;
+      --bubble-bot: #ffffff;
+      --shadow: 0 18px 50px rgba(23, 49, 43, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Georgia, "Times New Roman", serif;
+      background: var(--bg);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .shell {
+      width: min(100%, 920px);
+      background: var(--panel);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(18px);
+    }
+
+    .hero {
+      padding: 28px 28px 18px;
+      background:
+        radial-gradient(circle at top left, rgba(31, 143, 107, 0.18), transparent 34%),
+        radial-gradient(circle at right, rgba(196, 140, 72, 0.15), transparent 26%);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      font-size: 13px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 48px);
+      line-height: 0.98;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 12px 0 0;
+      max-width: 620px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .chat {
+      padding: 22px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .messages {
+      min-height: 340px;
+      max-height: 48vh;
+      overflow: auto;
+      padding-right: 8px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .bubble {
+      max-width: 78%;
+      padding: 14px 16px;
+      border-radius: 18px;
+      line-height: 1.45;
+      font-size: 15px;
+      border: 1px solid var(--line);
+      animation: rise 220ms ease;
+      white-space: pre-wrap;
+    }
+
+    .bot {
+      background: var(--bubble-bot);
+      justify-self: start;
+    }
+
+    .user {
+      background: var(--bubble-user);
+      justify-self: end;
+    }
+
+    .meta {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .controls {
+      display: grid;
+      gap: 14px;
+      padding-top: 4px;
+    }
+
+    .voice-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .voice-btn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--text);
+      padding: 11px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font: inherit;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .voice-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+
+    .composer {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 112px;
+      resize: vertical;
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      padding: 16px 18px;
+      font: inherit;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--text);
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(31, 143, 107, 0.12);
+    }
+
+    .send-btn {
+      align-self: end;
+      min-width: 132px;
+      border: 0;
+      border-radius: 18px;
+      padding: 16px 20px;
+      cursor: pointer;
+      background: linear-gradient(180deg, var(--accent), var(--accent-strong));
+      color: #fff;
+      font: inherit;
+      font-size: 16px;
+      transition: transform 160ms ease, filter 160ms ease;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .voice-btn:hover,
+    .send-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .send-btn:disabled {
+      cursor: not-allowed;
+      filter: grayscale(0.2);
+      opacity: 0.7;
+      transform: none;
+    }
+
+    @keyframes rise {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 720px) {
+      .hero,
+      .chat {
+        padding: 18px;
+      }
+
+      .composer {
+        grid-template-columns: 1fr;
+      }
+
+      .send-btn {
+        width: 100%;
+      }
+
+      .bubble {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">Message Voice Bot</p>
+      <h1>Type in the box and let the bot read it.</h1>
+      <p class="subtitle">Type a message in the box below, the bot receives it in the chat box, and your browser speaks it back.</p>
+    </section>
+
+    <section class="chat">
+      <div class="messages" id="messages">
+        <div class="bubble bot">
+          Send me a message below. I will show it here and generate voice from your text.
+          <span class="meta">Bot</span>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="voice-row">
+          <button class="voice-btn active" type="button" data-voice="boy">Boy Voice</button>
+          <button class="voice-btn" type="button" data-voice="girl">Girl Voice</button>
+        </div>
+
+        <div class="composer">
+          <textarea id="messageInput" placeholder="Type your message here..."></textarea>
+          <button class="send-btn" id="sendBtn" type="button">Send</button>
+        </div>
+
+        <p class="hint" id="statusText">Ready. Pick a voice, type a message, and press Send.</p>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const messages = document.getElementById('messages');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const statusText = document.getElementById('statusText');
+    const voiceButtons = document.querySelectorAll('.voice-btn');
+
+    let selectedVoice = 'boy';
+
+    function addMessage(text, sender, metaLabel) {
+      const bubble = document.createElement('div');
+      bubble.className = `bubble ${sender}`;
+      bubble.textContent = text;
+
+      const meta = document.createElement('span');
+      meta.className = 'meta';
+      meta.textContent = metaLabel;
+      bubble.appendChild(meta);
+
+      messages.appendChild(bubble);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function getVoiceForMode(voices) {
+      const lowered = voices.map((voice) => ({
+        ref: voice,
+        name: `${voice.name} ${voice.lang}`.toLowerCase()
+      }));
+
+      const femaleHint = lowered.find((voice) =>
+        /(female|woman|zira|susan|aria|samantha|girl)/.test(voice.name)
+      );
+
+      const maleHint = lowered.find((voice) =>
+        /(male|man|david|mark|guy|boy)/.test(voice.name)
+      );
+
+      if (selectedVoice === 'girl' && femaleHint) {
+        return femaleHint.ref;
+      }
+
+      if (selectedVoice === 'boy' && maleHint) {
+        return maleHint.ref;
+      }
+
+      return voices[0] || null;
+    }
+
+    function speakText(text) {
+      if (!('speechSynthesis' in window)) {
+        statusText.textContent = 'Your browser does not support voice playback.';
+        addMessage('Voice playback is not supported in this browser.', 'bot', 'Bot');
+        return;
+      }
+
+      window.speechSynthesis.cancel();
+
+      const utterance = new SpeechSynthesisUtterance(text);
+      const voices = window.speechSynthesis.getVoices();
+      const selected = getVoiceForMode(voices);
+
+      if (selected) {
+        utterance.voice = selected;
+        utterance.lang = selected.lang;
+      }
+
+      utterance.rate = selectedVoice === 'boy' ? 0.92 : 1.02;
+      utterance.pitch = selectedVoice === 'boy' ? 0.82 : 1.28;
+
+      utterance.onstart = () => {
+        statusText.textContent = `Speaking with ${selectedVoice} voice...`;
+      };
+
+      utterance.onend = () => {
+        statusText.textContent = 'Done. Send another message any time.';
+      };
+
+      utterance.onerror = () => {
+        statusText.textContent = 'Could not generate voice in this browser.';
+        addMessage('⚠️ មានកំហុសនៅពេលបំលែងសំឡេង។ សូមព្យាយាមម្តងទៀត។', 'bot', 'Bot');
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function sendMessage() {
+      const text = messageInput.value.trim();
+
+      if (!text) {
+        statusText.textContent = 'Type a message first.';
+        messageInput.focus();
+        return;
+      }
+
+      addMessage(text, 'user', 'You');
+      addMessage(`I got your text. Generating ${selectedVoice} voice now...`, 'bot', 'Bot');
+      speakText(text);
+      messageInput.value = '';
+      messageInput.focus();
+    }
+
+    voiceButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        selectedVoice = button.dataset.voice;
+        voiceButtons.forEach((item) => item.classList.remove('active'));
+        button.classList.add('active');
+        statusText.textContent = `${selectedVoice === 'boy' ? 'Boy' : 'Girl'} voice selected.`;
+      });
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    messageInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' && !event.shiftKey) {
+        event.preventDefault();
+        sendMessage();
+      }
+    });
+
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.getVoices();
+    }
+  </script>
+</body>
+</html>
